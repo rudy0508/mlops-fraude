@@ -1,0 +1,44 @@
+main:
+  project_name: fraude-tarjeta-mlflow
+  experiment_name: fraud_detection
+  mlflow_tracking_uri: mlruns
+  random_state: 42
+
+  execute_steps:
+    - download
+    - preprocess
+    - segregate
+    - check_data
+    - random_forest
+    - evaluate
+    - drift
+
+data:
+  raw_path:   data/fraud_raw.csv
+  clean_path: data/fraud_clean.csv
+  train_path: data/fraud_train.csv
+  test_path:  data/fraud_test.csv
+  test_size:  0.20
+  # OpenML: fetch_openml(name='creditcard') | flag --sintetico para dev rápido
+  use_sintetico: false
+
+model:
+  n_estimators:        [100, 200, 300]
+  max_depth:           [5, 8, 10]
+  min_samples_split:   [2, 5, 10]
+  cv_folds:            5
+  scoring:             average_precision   # PR-AUC — métrica principal en desbalanceo extremo
+  # quality gate
+  prauc_threshold:     0.70
+  recall_threshold:    0.80
+
+drift:
+  reference_path:  data/fraud_train.csv
+  current_path:    data/fraud_test.csv
+  drift_threshold: 0.30
+
+serve:
+  host: 0.0.0.0
+  port: 8001
+  model_name: FraudDetectionModel
+  model_stage: Production
