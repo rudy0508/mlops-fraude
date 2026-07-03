@@ -93,7 +93,7 @@ if __name__ == "__main__":
     print(f"\n  Tasa de fraudes detectados: {ftp/(ftp+fn)*100:.1f}%")
     print("\n" + classification_report(y_test, y_pred, target_names=["Legítima", "Fraude"]))
 
-    mlflow.set_tracking_uri(args.mlflow_uri or "sqlite:///mlflow.db")
+    mlflow.set_tracking_uri(args.mlflow_uri or os.environ.get("MLFLOW_TRACKING_URI", "file:///app/mlruns"))
     mlflow.set_experiment(args.experiment_name)
     with mlflow.start_run(run_name="evaluate_fraud"):
         mlflow.log_metrics(metricas)
